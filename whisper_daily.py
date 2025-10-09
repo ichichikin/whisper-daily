@@ -1519,6 +1519,7 @@ def transcribe_file(model, file_path: str, args) -> Dict:
             language=None if args.language == "auto" else args.language,
             fp16=args._use_fp16,
             temperature=0.0,
+            no_speech_threshold=args.no_speech_threshold,
             condition_on_previous_text=True,
             word_timestamps=True,
             verbose=False
@@ -1593,12 +1594,12 @@ def main():
     ap.add_argument("--block-sec", type=float, default=1, help="Live: block length in seconds")
     ap.add_argument("--channels", type=int, default=0, help="Live: 0=auto (up to 2), otherwise explicit number of channels")
     ap.add_argument("--translate", action="store_true", help="Translate to English (task=translate)")
-    ap.add_argument("--list-devices", action="store_true", help="List input devices and exit")
-    
-    # VAD settings
+    ap.add_argument("--no-speech-threshold", type=float, default=0.6, 
+                    help="Whisper no_speech threshold (0.0-1.0). Higher = more aggressive noise filtering. Default: 0.6")
     ap.add_argument("--vad", action="store_true", help="Enable Voice Activity Detection (silence filtering)")
     ap.add_argument("--vad-aggressiveness", type=int, default=1, choices=[0, 1, 2, 3],
                     help="VAD aggressiveness (0=less aggressive, 3=more aggressive)")
+    ap.add_argument("--list-devices", action="store_true", help="List input devices and exit")
     
     args = ap.parse_args()
 
@@ -1929,7 +1930,7 @@ def main():
                                     language=None if args.language == "auto" else args.language,
                                     fp16=args._use_fp16,
                                     temperature=0.0,
-                                    no_speech_threshold=0.6,
+                                    no_speech_threshold=args.no_speech_threshold,
                                     condition_on_previous_text=False,
                                     word_timestamps=False
                                 )
@@ -1947,7 +1948,7 @@ def main():
                                         language=None if args.language == "auto" else args.language,
                                         fp16=args._use_fp16,
                                         temperature=0.0,
-                                        no_speech_threshold=0.6,
+                                        no_speech_threshold=args.no_speech_threshold,
                                         condition_on_previous_text=True,
                                         word_timestamps=False
                                     )
@@ -1979,7 +1980,7 @@ def main():
                                 language=None if args.language == "auto" else args.language,
                                 fp16=args._use_fp16,
                                 temperature=0.0,
-                                no_speech_threshold=0.5,
+                                no_speech_threshold=args.no_speech_threshold,
                                 condition_on_previous_text=False,
                                 word_timestamps=False
                             )
@@ -1998,7 +1999,7 @@ def main():
                                     language=None if args.language == "auto" else args.language,
                                     fp16=args._use_fp16,
                                     temperature=0.0,
-                                    no_speech_threshold=0.5,
+                                    no_speech_threshold=args.no_speech_threshold,
                                     condition_on_previous_text=True,
                                     word_timestamps=False
                                 )
@@ -2040,7 +2041,7 @@ def main():
                                         language=None if args.language == "auto" else args.language,
                                         fp16=args._use_fp16,
                                         temperature=0.0,
-                                        no_speech_threshold=0.6,
+                                        no_speech_threshold=args.no_speech_threshold,
                                         condition_on_previous_text=True,
                                         word_timestamps=False
                                     )
