@@ -1914,6 +1914,16 @@ def main():
                     # Process via VAD (if enabled)
                     if vad_processor:
                         speech_detected, processed_audio = vad_processor.process_audio(audio_np)
+
+                        if vad_processor.is_speaking and audio_buffer.duration_seconds() > 0.5:
+                            try:
+                                preview_audio = audio_buffer.get_audio()
+                                preview_trans = model.transcribe(preview_audio, ...)
+                                preview_text = (preview_trans.get("text") or "").strip()
+                                if preview_text:
+                                    output_manager.print_block(preview_text)
+                            except Exception as e:
+                                logger.debug(f"Preview error: {e}")
                         
                         if processed_audio is not None:
                             # VAD detected end of speech — process accumulated audio
