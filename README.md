@@ -1,6 +1,6 @@
 # Whisper Daily
 
-**Offline Whisper-powered transcription for live audio, files, and subtitle generation — with optional VAD and auto audio‑routing.**
+**Offline [Whisper-powered](https://github.com/openai/whisper) transcription for live audio, files, and subtitle generation — with optional VAD and auto audio‑routing.**
 
 Whisper Daily is a single Python script that can:
 - **Live transcribe** your system audio or microphone.
@@ -208,9 +208,3 @@ A: `--vad` uses webrtcvad to suppress silence, show cleaner partial text, and tr
 
 ## License
 MIT (see `LICENSE` in the repo).
-
-## Credits
-- OpenAI **Whisper** (`openai-whisper`)
-- VB‑Audio **VB‑CABLE** and **Voicemeeter Banana**
-- **webrtcvad**, **sounddevice**, **soundfile**, **FFmpeg**
-- `switchaudio-osx` for macOS audio switching
