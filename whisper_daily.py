@@ -1618,19 +1618,37 @@ def main():
 
     # Prepare whisper
     logger.info(f"Loading Whisper model: {args.model}")
+
     try:
-        device = pick_infer_device()
-        logger.info(f"Selected device: {device}")
-        model = whisper.load_model(args.model, device=device)
-        # remember device/precision choice for all transcribe() calls
-        args._device = device
-        args._use_fp16 = (device != "cpu")
-        logger.info(f"fp16 enabled: {args._use_fp16}")
-        logger.info(f"Model {args.model} loaded successfully")
+        target_dev = "mps" if (IS_MAC and MPS_AVAILABLE) else "cpu"
+        logger.info(f"Selected device target: {target_dev}")
+      
+        # Load on CPU first to dodge SparseMPS during state dict load
+        model = whisper.load_model(args.model, device="cpu")
+        args._device = "cpu"
+        args._use_fp16 = False # keep fp32 for stability
+
+        if target_dev == "mps":
+            try:
+                # Move tensors to MPS *after* loading
+                model.to("mps")
+                logger.info("Moved model to MPS (fp32).")
+                args._device = "mps"
+                args._use_fp16 = False # stay fp32 on MPS
+            except Exception as move_e:
+                logger.warning(f"MPS move failed ({move_e}); staying on CPU.")
+
+        logger.info(f"Model {args.model} ready on {args._device}")
+
     except Exception as e:
-        logger.error(f"Whisper model load error: {e}")
-        logger.error("Ensure you have the correct version installed: pip install openai-whisper")
-        sys.exit(1)
+        if "SparseMPS" in str(e) or "_sparse_coo_tensor" in str(e):
+            logger.warning("SparseMPS op missing; forcing CPU.")
+            model = whisper.load_model(args.model, device="cpu")
+            args._device = "cpu"
+            args._use_fp1ó = False
+        else:
+            logger.error(f"Whisper model load error: {e}")
+            sys.exit(1)
 
     # --------------------
     # SUBTITLES MODE
